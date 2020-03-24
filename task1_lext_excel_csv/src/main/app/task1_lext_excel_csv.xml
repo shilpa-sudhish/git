@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <flow name="task1_lext_excel_csvFlow">
+        <file:inbound-endpoint path="src/test/resources/in" responseTimeout="10000" doc:name="excel_source"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="e9f1354e-954c-41b7-ab2b-9fad0037e9e6">
+            <dw:input-payload mimeType="application/xlsx"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/csv
+---
+payload.Sheet1 map ((sheet1 , indexOfSheet1) -> {
+	id: sheet1.id,
+	name: sheet1.name,
+	subject: sheet1.subject
+})]]></dw:set-payload>
+        </dw:transform-message>
+        <file:outbound-endpoint path="src/test/resources/out" outputPattern="text.csv" responseTimeout="10000" doc:name="dest"/>
+    </flow>
+</mule>
