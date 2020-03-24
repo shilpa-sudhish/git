@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <flow name="task1_lexiFlow">
+        <file:inbound-endpoint path="src/test/resources/in" responseTimeout="10000" doc:name="excel_File"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="386ee13f-d83c-4400-a243-1896821babef">
+            <dw:input-payload mimeType="application/xlsx"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	Sheet1: [{
+		id: payload.Sheet1.id,
+		name: payload.Sheet1.name,
+		subject: payload.Sheet1.subject
+	}]
+	
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <file:outbound-endpoint path="src/test/resources/out" outputPattern="#[message.inboundProperties.originalFilename].json" responseTimeout="10000" doc:name="out_File"/>
+    </flow>
+</mule>
